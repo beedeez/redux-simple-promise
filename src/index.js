@@ -14,10 +14,18 @@ export function reject(actionName) {
   return actionName + REJECTED_NAME;
 }
 
+export function unresolve(actionName) {
+  return actionName.replace(RESOLVED_NAME, '');
+}
+
+export function unreject(actionName) {
+  return actionName.replace(REJECTED_NAME, '');
+}
+
 export default function promiseMiddleware(resolvedName, rejectedName) {
   [RESOLVED_NAME, REJECTED_NAME] = [resolvedName || RESOLVED_NAME, rejectedName || REJECTED_NAME];
 
-  return ({ dispatch }) => next => action => {
+  return ({ dispatch }) => next => (action) => {
 
     if (!isFSA(action) || !action.payload || !isPromise(action.payload.promise)) {
       return next(action);
@@ -26,7 +34,7 @@ export default function promiseMiddleware(resolvedName, rejectedName) {
     // (1) Dispatch actionName with payload with arguments apart from promise
 
     // Clone original action
-    let newAction = {
+    const newAction = {
       type: action.type,
       payload: {
         ...action.payload

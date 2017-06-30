@@ -1,20 +1,29 @@
-import promiseMiddleware from '../';
 import { spy } from 'sinon';
-import { resolve, reject } from '../';
+import 'babel-polyfill';
+import promiseMiddleware, { resolve, reject, unresolve, unreject } from '../';
 
 function noop() {}
 const GIVE_ME_META = 'GIVE_ME_META';
 function metaMiddleware() {
-  return next => action =>
-    action.type === GIVE_ME_META
+  return next => action => (
+    (action.type === GIVE_ME_META
       ? next({ ...action, meta: 'here you go' })
-      : next(action);
+      : next(action))
+  );
 }
 
 describe('before promiseMiddleware is called', () => {
-  it('returns the reject and resolve strings with default values', () => {
-    expect(resolve('MY_ACTION')).to.equal('MY_ACTION_RESOLVED');
+  it('returns the rejected strings with default values', () => {
     expect(reject('MY_ACTION')).to.equal('MY_ACTION_REJECTED');
+  });
+  it('returns the resolved strings with default values', () => {
+    expect(resolve('MY_ACTION')).to.equal('MY_ACTION_RESOLVED');
+  });
+  it('returns the unrejected string with default values', () => {
+    expect(unreject('MY_ACTION_REJECTED')).to.equal('MY_ACTION');
+  });
+  it('returns the unresolved string with default values', () => {
+    expect(unresolve('MY_ACTION_RESOLVED')).to.equal('MY_ACTION');
   });
 });
 
@@ -110,9 +119,9 @@ describe('promiseMiddleware', () => {
   });
 
   it('returns the original promise from dispatch', () => {
-    let promiseDispatched = new Promise(() => {});
+    const promiseDispatched = new Promise(() => {});
 
-    let dispatchedResult = dispatch({
+    const dispatchedResult = dispatch({
       type: 'ACTION_TYPE_RESOLVE',
       payload: {
         promise: promiseDispatched,
@@ -124,9 +133,9 @@ describe('promiseMiddleware', () => {
   });
 
   it('resolves the original promise results from dispatch', () => {
-    let promiseDispatched = Promise.resolve(foobar);
+    const promiseDispatched = Promise.resolve(foobar);
 
-    let dispatchedResult = dispatch({
+    const dispatchedResult = dispatch({
       type: 'ACTION_TYPE_RESOLVE',
       payload: {
         promise: promiseDispatched,
@@ -137,9 +146,9 @@ describe('promiseMiddleware', () => {
   });
 
   it('reject the original promise from dispatch', () => {
-    let promiseDispatched = Promise.reject(err);
+    const promiseDispatched = Promise.reject(err);
 
-    let dispatchedResult = dispatch({
+    const dispatchedResult = dispatch({
       type: 'ACTION_TYPE_REJECT',
       payload: {
         promise: promiseDispatched,
