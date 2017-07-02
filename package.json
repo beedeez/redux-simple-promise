@@ -40,6 +40,6 @@
     "sinon": "^2.2.0"
   },
   "dependencies": {
-    "flux-standard-action": "git+https://github.com/beedeez/flux-standard-action.git"
+    "flux-standard-action": "0.6.0"
   }
 }
